@@ -2,7 +2,7 @@
 - hosts: all
   tasks:
     - name: include ubuntu.yml
-      include: stuff.yaml
+      include: ubuntu.yaml
 
     - name: include letsencrypt.yml
       include: letsencrypt.yaml

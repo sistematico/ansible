@@ -1,0 +1,11 @@
+---
+- hosts: all
+  tasks:
+    - name: include ubuntu.yml
+      include: stuff.yaml
+
+    - name: include letsencrypt.yml
+      include: letsencrypt.yaml
+
+    - name: include nginx.yml
+      include: nginx.yaml

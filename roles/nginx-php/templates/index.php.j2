@@ -68,7 +68,7 @@
           <li class="is-active"><a href="http://{{ default_domain }}">{{ default_domain }}</a></li>
             <?php 
             {% for host in domains %}
-                echo '<li><a href="http://{{ default_domain }}">{{ host }}</a></li>';
+                echo '<li><a href="http://{{ host }}">{{ host }}</a></li>';
             {% endfor %}
             ?>
         </ul>

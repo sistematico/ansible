@@ -34,14 +34,17 @@
     src: templates/default.j2
     dest: /etc/nginx/sites-available/default
 
-- name: setup vhost for {{ item }}
+- name: setup vhost for each item
   template: 
     src: templates/sites.j2
     dest: /etc/nginx/sites-available/{{ item }}.conf
   with_items: "{{ domains }}"
 
 - name: create symlinks for sites-enabled
-  file: state=link src=/etc/nginx/sites-available/{{ item }}.conf dest=/etc/nginx/sites-enabled/{{ item }}.conf
+  file: 
+    src: /etc/nginx/sites-available/{{ item }}.conf
+    dest: /etc/nginx/sites-enabled/{{ item }}.conf
+    state: link
   with_items: "{{ domains }}"
   notify:
     - reload nginx
@@ -59,6 +62,9 @@
   template: 
     src: templates/index.php.j2
     dest: /var/www/{{ item }}/index.php
+    owner: www-data
+    group: www-data
+    mode: '0644'
   with_items: "{{ domains }}"
 
 - name: list dirs in /var/www/  
@@ -77,4 +83,4 @@
     state: started
   with_items:
     - nginx
-    - php-fpm
+    - php{{ php_version }}-fpm

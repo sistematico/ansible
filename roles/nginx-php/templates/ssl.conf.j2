@@ -4,5 +4,5 @@ listen [::]:443 ssl;
 ssl_session_cache shared:SSL:10m;
 ssl_session_timeout 5m;
 
-ssl_certificate      /etc/letsencrypt/live/{{ item }}/fullchain.pem;
-ssl_certificate_key  /etc/letsencrypt/live/{{ item }}/privkey.pem;
+ssl_certificate      /etc/letsencrypt/live/$host/fullchain.pem;
+ssl_certificate_key  /etc/letsencrypt/live/$host/privkey.pem;

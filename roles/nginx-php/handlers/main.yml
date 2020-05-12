@@ -6,5 +6,5 @@
 
 - name: reload php
   service: 
-    name: php{{ php_version }}-fpm
+    name: php{{ php_version.stdout }}-fpm
     state: reloaded

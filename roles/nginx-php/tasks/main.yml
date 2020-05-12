@@ -83,4 +83,4 @@
     state: started
   with_items:
     - nginx
-    - php{{ php_version }}-fpm
+    - php{{ php_version.stdout }}-fpm

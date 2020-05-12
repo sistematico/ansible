@@ -1,0 +1,24 @@
+server {
+	listen 80;
+	listen [::]:80;
+
+	include ssl.conf*;
+
+	root /var/www/{{ item }};
+	index index.php index.html;
+
+	server_name www.{{ item }} {{ item }};
+
+	location / {
+		try_files $uri $uri/ =404;
+	}
+
+	location ~ \.php$ {
+		include snippets/fastcgi-php.conf;
+		fastcgi_pass unix:/run/php/php{{ php_version.stdout }}-fpm.sock;
+	}
+	
+	location ~ /\.ht {
+		deny all;
+	}
+}

@@ -1,0 +1,52 @@
+---
+- name: install nginx, php-fpm and php-cli on the latest version
+  apt: 
+    package: ['nginx', 'php-fpm', 'php-cli']
+    state: latest
+
+- name: get php version
+  shell: >
+    php -r "echo substr(phpversion(),0,3);"
+  changed_when: false
+  register: php_version
+
+- name: remove default nginx config
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - "/etc/nginx/nginx.conf"
+    - "/etc/nginx/sites-enabled/default"
+    - "/etc/nginx/sites-available/default"
+
+- name: setup nginx.conf
+  template: 
+    src: templates/nginx.conf.j2
+    dest: /etc/nginx/nginx.conf
+
+- name: setup default site
+  template: 
+    src: templates/default.j2
+    dest: /etc/nginx/sites-available/default
+
+- name: setup default ssl site
+  template: 
+    src: templates/ssl-default.conf.j2
+    dest: /etc/nginx/ssl-default.conf
+
+- name: setup vhost for {{ item }}
+  template: 
+    src: templates/sites.j2
+    dest: /etc/nginx/sites-available/{{ item }}.conf
+  with_items: "{{ domains }}"
+
+- name: setup ssl vhost
+  template: 
+    src: templates/ssl.conf.j2
+    dest: /etc/nginx/ssl.conf
+
+- name: create symlinks for sites-enabled
+  file: state=link src=/etc/nginx/sites-available/{{ item }}.conf dest=/etc/nginx/sites-enabled/{{ item }}.conf
+  with_items: "{{ domains }}"
+  notify:
+    - reload nginx

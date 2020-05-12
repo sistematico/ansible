@@ -1,4 +1,9 @@
 ---
+- name: remove apache2 package
+  apt:
+    name: apache2
+    state: absent
+
 - name: install nginx, php-fpm and php-cli on the latest version
   apt: 
     package: ['nginx', 'php-fpm', 'php-cli']
@@ -29,24 +34,22 @@
     src: templates/default.j2
     dest: /etc/nginx/sites-available/default
 
-- name: setup default ssl site
-  template: 
-    src: templates/ssl-default.conf.j2
-    dest: /etc/nginx/ssl-default.conf
-
 - name: setup vhost for {{ item }}
   template: 
     src: templates/sites.j2
     dest: /etc/nginx/sites-available/{{ item }}.conf
   with_items: "{{ domains }}"
 
-- name: setup ssl vhost
-  template: 
-    src: templates/ssl.conf.j2
-    dest: /etc/nginx/ssl.conf
-
 - name: create symlinks for sites-enabled
   file: state=link src=/etc/nginx/sites-available/{{ item }}.conf dest=/etc/nginx/sites-enabled/{{ item }}.conf
   with_items: "{{ domains }}"
   notify:
     - reload nginx
+
+- name: start nginx and php-fpm
+  service:
+    name: "{{ item }}"
+    state: started
+  with_items:
+    - nginx
+    - php-fpm

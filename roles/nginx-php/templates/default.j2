@@ -3,7 +3,14 @@ server {
 	listen [::]:80 default_server;
 
 	# SSL
-	include ssl-default.conf*;
+	listen 443 ssl default_server;
+	listen [::]:443 ssl default_server;
+
+	ssl_session_cache shared:SSL:10m;
+	ssl_session_timeout 5m;
+
+	ssl_certificate      /etc/letsencrypt/live/{{ default_domain }}/fullchain.pem;
+	ssl_certificate_key  /etc/letsencrypt/live/{{ default_domain }}/privkey.pem;
 
 	root /var/www/html;
 	index index.php index.html;

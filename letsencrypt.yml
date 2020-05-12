@@ -3,5 +3,29 @@
   remote_user: root
   vars_files: 
     - vars.yml
-  roles:
-    - role: letsencrypt
+  tasks:
+  - name: install python-certbot-nginx
+    apt:
+      package: python-certbot-nginx
+      state: present
+    
+  - name: check if certificate already exists.
+    stat:
+      path: /etc/letsencrypt/live/{{ item }}/cert.pem
+    register: letsencrypt_cert
+    with_items: "{{ domains }}"
+    
+  - name: stop nginx to allow certbot to generate a cert
+    service:
+      name: nginx
+      state: stopped
+
+  - name: generate new certificate if one doesn't exist.
+    shell: "certbot certonly --standalone --noninteractive --agree-tos --email {{ certbot_admin_email }} -d {{ item.item }},www.{{ item.item }}"
+    with_items: "{{ letsencrypt_cert.results }}"
+    when: item.stat.exists == false
+
+  - name: start nginx after cert has been generated
+    service:
+      name: nginx
+      state: started

@@ -46,6 +46,31 @@
   notify:
     - reload nginx
 
+- name: creates /var/www/sites directory
+  file:
+    path: /var/www/{{ item }}
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: '0755'
+  with_items: "{{ domains }}"
+
+- name: install index.php
+  template: 
+    src: templates/index.php.j2
+    dest: /var/www/{{ item }}/index.php
+  with_items: "{{ domains }}"
+
+- name: list dirs in /var/www/  
+  command: ls /var/www
+  register: www_folders
+
+- name: create info.php for every folder on /var/www/
+  copy:
+    content: '<?php phpinfo(); ?>'
+    dest: "/var/www/{{ item }}/info.php"
+  with_items: "{{ www_folders.stdout_lines }}"
+
 - name: start nginx and php-fpm
   service:
     name: "{{ item }}"

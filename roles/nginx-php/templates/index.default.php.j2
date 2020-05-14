@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Máquina {{ item }}</title>
+    <title>Máquina {{ default_domain }}</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.2/css/bulma.min.css">
     <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
 </head>
@@ -46,7 +46,7 @@
         Máquina
       </h1>
       <h2 class="subtitle">
-        {{ item }}
+        {{ default_domain }}
       </h2>
     </div>
   </div>
@@ -56,12 +56,13 @@
     <nav class="tabs is-boxed is-fullwidth">
       <div class="container">
         <ul>
-          <li>
-          <a href="https://{{ default_domain }}">{{ default_domain }}</a></li>
+            <li class="is-active">
+                <a href="http://{{ default_domain }}">{{ default_domain }}</a>
+            </li>
             <?php 
-            {% for host in domains %}
-                echo '<li><a href="https://{{ host }}">{{ host }}</a></li>';
-            {% endfor %}
+                {% for host in domains %}
+                    echo '<li><a href="http://{{ host }}">{{ host }}</a></li>';
+                {% endfor %}
             ?>
         </ul>
       </div>
@@ -92,6 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
   }
+
 });
 </script>
 </body>

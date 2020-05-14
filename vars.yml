@@ -1,7 +1,0 @@
----
-certbot_admin_email: sistematico@gmail.com
-default_domain: hera.radiochat.com.br
-# not include www!
-domains:
-  - guerrilha.net
-  - radiochat.com.br

@@ -1,14 +1,4 @@
 ---
-- name: remove apache2 package
-  apt:
-    name: apache2
-    state: absent
-
-- name: install nginx, php-fpm and php-cli on the latest version
-  apt: 
-    package: ['nginx', 'php-fpm', 'php-cli']
-    state: latest
-
 - name: get php version
   shell: >
     php -r "echo substr(phpversion(),0,3);"
@@ -23,6 +13,8 @@
     - "/etc/nginx/nginx.conf"
     - "/etc/nginx/sites-enabled/default"
     - "/etc/nginx/sites-available/default"
+    - "/etc/nginx/sites-available/{{ default_domain }}.conf"
+    - "/etc/nginx/sites-enabled/{{ default_domain }}.conf"
 
 - name: setup nginx.conf
   template: 
@@ -32,7 +24,13 @@
 - name: setup default site
   template: 
     src: templates/default.j2
-    dest: /etc/nginx/sites-available/default
+    dest: /etc/nginx/sites-available/{{ default_domain }}.conf
+
+- name: create symlink for default site
+  file: 
+    src: /etc/nginx/sites-available/{{ default_domain }}.conf
+    dest: /etc/nginx/sites-enabled/{{ default_domain }}.conf
+    state: link
 
 - name: setup vhost for each item
   template: 
@@ -58,7 +56,7 @@
     mode: '0755'
   with_items: "{{ domains }}"
 
-- name: install index.php
+- name: install index.php for all sites
   template: 
     src: templates/index.php.j2
     dest: /var/www/{{ item }}/index.php
@@ -66,6 +64,15 @@
     group: www-data
     mode: '0644'
   with_items: "{{ domains }}"
+  when: item != 'html'
+
+- name: install index.php for default site
+  template: 
+    src: templates/index.default.php.j2
+    dest: /var/www/html/index.php
+    owner: www-data
+    group: www-data
+    mode: '0644'
 
 - name: list dirs in /var/www/  
   command: ls /var/www
@@ -80,7 +87,7 @@
 - name: start nginx and php-fpm
   service:
     name: "{{ item }}"
-    state: started
+    state: restarted
   with_items:
     - nginx
     - php{{ php_version.stdout }}-fpm

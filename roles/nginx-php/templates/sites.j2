@@ -16,6 +16,8 @@ server {
 
 	server_name www.{{ item }} {{ item }};
 
+	error_page 404 /404.php;
+
 	location / {
 		try_files $uri $uri/ =404;
 	}

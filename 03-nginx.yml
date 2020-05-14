@@ -1,0 +1,7 @@
+---
+- hosts: all
+  remote_user: root
+  vars_files: 
+    - 04-vars.yml
+  roles:
+    - role: nginx-php

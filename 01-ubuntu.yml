@@ -2,6 +2,17 @@
 - hosts: all
   remote_user: root
   tasks:
+  - name: install nginx, php-fpm and php-cli on the latest version
+    apt: 
+      package: ['nginx', 'php-fpm', 'php-cli', 'python3-apt']
+      update_cache: yes
+      state: latest
+
+  - name: remove apache2 package
+    apt:
+      package: apache2
+      state: absent
+
   - name: get port, default 22
     delegate_to: localhost
     set_fact:
@@ -14,11 +25,6 @@
       create: yes
       state: present
       line: "{{ lookup('pipe', 'ssh-keyscan -trsa -p' + ansible_ssh_port + ' ' + inventory_hostname) }}"
-
-  - name: install python3-apt
-    apt:
-      package: python3-apt
-      state: present
 
   - name: update apt repo and cache on all debian/ubuntu boxes
     apt: update_cache=yes force_apt_get=yes cache_valid_time=3600

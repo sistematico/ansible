@@ -61,7 +61,7 @@
             </li>
             <?php 
                 {% for host in domains %}
-                    echo '<li><a href="http://{{ host }}">{{ host }}</a></li>';
+                    echo '<li><a href="http://{{ host.domain }}">{{ host.domain }}</a></li>';
                 {% endfor %}
             ?>
         </ul>

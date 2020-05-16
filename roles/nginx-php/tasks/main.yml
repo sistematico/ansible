@@ -5,16 +5,23 @@
   changed_when: false
   register: php_version
 
+# - name: remove default nginx config
+#   file:
+#     path: "{{ item }}"
+#     state: absent
+#   with_items:
+#     - "/etc/nginx/nginx.conf"
+#     - "/etc/nginx/sites-enabled/default"
+#     - "/etc/nginx/sites-available/default"
+#     - "/etc/nginx/sites-available/{{ default_domain }}.conf"
+#     - "/etc/nginx/sites-enabled/{{ default_domain }}.conf"
 - name: remove default nginx config
   file:
     path: "{{ item }}"
     state: absent
   with_items:
-    - "/etc/nginx/nginx.conf"
     - "/etc/nginx/sites-enabled/default"
     - "/etc/nginx/sites-available/default"
-    - "/etc/nginx/sites-available/{{ default_domain }}.conf"
-    - "/etc/nginx/sites-enabled/{{ default_domain }}.conf"
 
 - name: setup nginx.conf
   template: 
@@ -35,59 +42,88 @@
 - name: setup vhost for each item
   template: 
     src: templates/sites.j2
-    dest: /etc/nginx/sites-available/{{ item }}.conf
+    dest: /etc/nginx/sites-available/{{ item.domain }}.conf
   with_items: "{{ domains }}"
 
 - name: create symlinks for sites-enabled
   file: 
-    src: /etc/nginx/sites-available/{{ item }}.conf
-    dest: /etc/nginx/sites-enabled/{{ item }}.conf
+    src: /etc/nginx/sites-available/{{ item.domain }}.conf
+    dest: /etc/nginx/sites-enabled/{{ item.domain }}.conf
     state: link
   with_items: "{{ domains }}"
-  notify:
-    - reload nginx
+  #notify:
+  #  - reload nginx
 
 - name: creates /var/www/sites directory
   file:
-    path: /var/www/{{ item }}
+    path: /var/www/{{ item.domain }}
     state: directory
-    owner: www-data
-    group: www-data
+    owner: "{{ nginx_user }}"
+    group: "{{ nginx_user }}"
     mode: '0755'
   with_items: "{{ domains }}"
+  when: item.git == false
 
 - name: install index.php for all sites
   template: 
     src: templates/index.php.j2
-    dest: /var/www/{{ item }}/index.php
-    owner: www-data
-    group: www-data
+    dest: /var/www/{{ item.domain }}/index.php
+    owner: "{{ nginx_user }}"
+    group: "{{ nginx_user }}"
     mode: '0644'
   with_items: "{{ domains }}"
-  when: item != 'html'
+  when: item.git == false
 
 - name: install index.php for default site
   template: 
     src: templates/index.default.php.j2
     dest: /var/www/html/index.php
-    owner: www-data
-    group: www-data
+    owner: "{{ nginx_user }}"
+    group: "{{ nginx_user }}"
     mode: '0644'
 
-- name: list dirs in /var/www/  
-  command: ls /var/www
-  register: www_folders
+# - name: list dirs in /var/www/  
+#   command: ls /var/www
+#   register: www_folders
 
-- name: create info.php for every folder on /var/www/
+- name: create info.php for every domain
   copy:
     content: '<?php phpinfo(); ?>'
-    dest: "/var/www/{{ item }}/info.php"
-  with_items: "{{ www_folders.stdout_lines }}"
+    dest: "/var/www/{{ item.domain }}/info.php"
+  with_items: "{{ domains }}"
+  when: item.git == false
+  #with_items: "{{ www_folders.stdout_lines }}"
+  #when: item.git == false
 
-- name: start nginx and php-fpm
-  service:
-    name: "{{ item }}"
-    state: restarted
+- name: create 404.html for every domain
+  template: 
+    src: templates/404.html.j2
+    dest: /var/www/{{ item.domain }}/404.html
+    owner: "{{ nginx_user }}"
+    group: "{{ nginx_user }}"
+    mode: '0644'
+  with_items: "{{ domains }}"
+  when: item.git == false
+  # with_items: "{{ www_folders.stdout_lines }}"
+  # when: item.git == false
+
+- name: copy 404.svg for every domain
+  template: 
+    src: templates/404.svg
+    dest: /var/www/{{ item.domain }}/404.svg
+    owner: "{{ nginx_user }}"
+    group: "{{ nginx_user }}"
+    mode: '0644'
+  with_items: "{{ domains }}"
+  when: item.git == false
+
+- name: replace www-data with nginx user define in 05-vars.yml
+  replace:
+    path: "{{ item }}"
+    regexp: 'www-data'
+    replace: "{{ nginx_user }}"
   with_items:
-    - nginx
-    - php{{ php_version.stdout }}-fpm
+    - /etc/php/{{ php_version.stdout }}/fpm/pool.d/www.conf
+    - /etc/init/php{{ php_version.stdout }}-fpm.conf
+    - /etc/nginx/nginx.conf
+    - /etc/logrotate.d/nginx

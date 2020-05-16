@@ -46,7 +46,7 @@
         Máquina
       </h1>
       <h2 class="subtitle">
-        {{ item }}
+        {{ item.domain }}
       </h2>
     </div>
   </div>
@@ -60,7 +60,7 @@
           <a href="https://{{ default_domain }}">{{ default_domain }}</a></li>
             <?php 
             {% for host in domains %}
-                echo '<li><a href="https://{{ host }}">{{ host }}</a></li>';
+                echo '<li><a href="https://{{ host.domain }}">{{ host.domain }}</a></li>';
             {% endfor %}
             ?>
         </ul>

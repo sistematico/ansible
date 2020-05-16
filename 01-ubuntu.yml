@@ -1,10 +1,52 @@
 ---
 - hosts: all
   remote_user: root
+  vars_files: 
+    - 05-vars.yml
   tasks:
+  - name: Create a 2048-bit SSH key for user nginx in ~nginx/.ssh/id_rsa
+    user:
+      name: "{{ nginx_user }}"
+      create_home: yes
+      home: "/home/{{ nginx_user }}"
+      generate_ssh_key: yes
+      ssh_key_bits: 2048
+      ssh_key_file: .ssh/id_rsa
+
+  - name: set authorized key taken from file to user root
+    authorized_key:
+      user: "{{ nginx_user }}"
+      state: present
+      key: "{{ lookup('file', '/home/lucas/.ssh/id_rsa.pub') }}"
+
+  - name: set authorized key taken from file to user nginx
+    authorized_key:
+      user: root
+      state: present
+      key: "{{ lookup('file', '/home/lucas/.ssh/id_rsa.pub') }}"
+
+  - name: change owner and group fron php and nginx folders
+    file:
+      path: "{{ item }}"
+      recurse: yes
+      owner: "{{ nginx_user }}"
+      group: "{{ nginx_user }}"
+    with_items:
+      - /var/www
+      - /run/php
+
+  - name: show ssh public key
+    command: /bin/cat /home/{{ nginx_user }}/.ssh/id_rsa.pub
+    register: cat
+  
+  - debug: var=cat.stdout_lines
+
+  - name: wait for user to copy ssh public key
+    pause: prompt="Please add the ssh public key above to your github account"
+
   - name: install nginx, php-fpm and php-cli on the latest version
     apt: 
-      package: ['nginx', 'php-fpm', 'php-cli', 'python3-apt']
+      package: ['nginx', 'php-fpm', 'php-cli', 'python-apt', 'python3-apt', 'git']
       update_cache: yes
       state: latest
 

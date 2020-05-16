@@ -2,7 +2,7 @@
 - hosts: all
   remote_user: root
   vars_files: 
-    - 04-vars.yml
+    - 05-vars.yml
   tasks:
   - name: install python-certbot-nginx
     apt:
@@ -11,7 +11,7 @@
     
   - name: check if certificate already exists
     stat:
-      path: /etc/letsencrypt/live/{{ item }}/cert.pem
+      path: /etc/letsencrypt/live/{{ item.domain }}/cert.pem
     register: letsencrypt_cert
     with_items: "{{ domains }}"
 
@@ -26,7 +26,7 @@
       state: stopped
 
   - name: generate new certificate if one doesn't exist
-    shell: "certbot certonly --standalone --noninteractive --agree-tos --email {{ certbot_admin_email }} -d {{ item.item }},www.{{ item.item }}"
+    shell: "certbot certonly --standalone --noninteractive --agree-tos --email {{ certbot_admin_email }} -d {{ item.item.domain }},www.{{ item.item.domain }}"
     with_items: "{{ letsencrypt_cert.results }}"
     when: item.stat.exists == false
 

@@ -5,16 +5,6 @@
   changed_when: false
   register: php_version
 
-# - name: remove default nginx config
-#   file:
-#     path: "{{ item }}"
-#     state: absent
-#   with_items:
-#     - "/etc/nginx/nginx.conf"
-#     - "/etc/nginx/sites-enabled/default"
-#     - "/etc/nginx/sites-available/default"
-#     - "/etc/nginx/sites-available/{{ default_domain }}.conf"
-#     - "/etc/nginx/sites-enabled/{{ default_domain }}.conf"
 - name: remove default nginx config
   file:
     path: "{{ item }}"
@@ -51,8 +41,6 @@
     dest: /etc/nginx/sites-enabled/{{ item.domain }}.conf
     state: link
   with_items: "{{ domains }}"
-  #notify:
-  #  - reload nginx
 
 - name: creates /var/www/sites directory
   file:
@@ -92,8 +80,6 @@
     dest: "/var/www/{{ item.domain }}/info.php"
   with_items: "{{ domains }}"
   when: item.git == false
-  #with_items: "{{ www_folders.stdout_lines }}"
-  #when: item.git == false
 
 - name: create 404.html for every domain
   template: 
@@ -104,8 +90,6 @@
     mode: '0644'
   with_items: "{{ domains }}"
   when: item.git == false
-  # with_items: "{{ www_folders.stdout_lines }}"
-  # when: item.git == false
 
 - name: copy 404.svg for every domain
   template: 

@@ -9,6 +9,23 @@
   with_items: "{{ domains }}"
   when: item.git != false
 
+- name: creates /var/www/sites/projetos directory
+  file:
+    path: /var/www/{{ git_main }}/projetos
+    state: directory
+    owner: "{{ nginx_user }}"
+    group: "{{ nginx_user }}"
+    mode: '0755'
+
+- name: clone additional repository to the docroot
+  git:
+    repo: "{{ item.git }}"
+    dest: /var/www/{{ git_main }}/projetos/{{ item.name }}
+    accept_hostkey: yes
+    key_file: /home/{{ nginx_user }}/.ssh/id_rsa
+  become_user: "{{ nginx_user }}"
+  with_items: "{{ git_extras }}"
+
 - name: start nginx and php-fpm
   service:
     name: "{{ item }}"
@@ -32,3 +49,11 @@
     # special_time: hourly
     minute: "*/15"
     job: "/usr/local/bin/updaterepos.sh 2>&1"
+
+- name: create cron job to auto pull repos every 10 minutes
+  cron:
+    user: "{{ nginx_user }}"
+    name: "automatic update repos on git main folder"
+    # special_time: hourly
+    minute: "*/10"
+    job: "/usr/local/bin/updaterepos.sh /var/www/{{ git_main }}/projetos/ 2>&1"

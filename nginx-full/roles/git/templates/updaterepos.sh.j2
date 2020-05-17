@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+dir="${1:-/var/www}"
+
+/usr/bin/find "$dir" -type d -depth 1 -exec git --git-dir={}/.git --work-tree=$PWD/{} pull origin master \;

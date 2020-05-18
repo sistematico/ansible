@@ -1,0 +1,6 @@
+#!/bin/bash
+
+find /opt/audio -type f -name "*.mp3" > /opt/radio/lista.m3u 
+find /opt/radio/jingles -type f -name "*.mp3" > /opt/radio/jingles.m3u
+
+#chown liquidsoap:liquidsoap /opt/radio/lista.m3u /opt/radio/jingles.m3u

@@ -1,7 +1,0 @@
----
-- hosts: all
-  remote_user: root
-  vars_files: 
-    - 05-vars.yml
-  roles:
-    - role: git

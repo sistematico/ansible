@@ -1,0 +1,98 @@
+---
+- name: download ix
+  get_url:
+    url: "http://ix.io/client"
+    dest: "/usr/local/bin/ix"
+    mode: '0755'
+
+- name: Create a 2048-bit SSH key for user nginx in ~nginx/.ssh/id_rsa
+  user:
+    name: "{{ nginx_user }}"
+    create_home: yes
+    home: "/home/{{ nginx_user }}"
+    generate_ssh_key: yes
+    ssh_key_bits: 2048
+    ssh_key_file: .ssh/id_rsa
+
+- name: set authorized key taken from file to user root
+  authorized_key:
+    user: "{{ nginx_user }}"
+    state: present
+    key: "{{ lookup('file', '/home/lucas/.ssh/id_rsa.pub') }}"
+
+- name: set authorized key taken from file to user nginx
+  authorized_key:
+    user: root
+    state: present
+    key: "{{ lookup('file', '/home/lucas/.ssh/id_rsa.pub') }}"
+
+- name: change owner and group fron php and nginx folders
+  file:
+    path: "{{ item }}"
+    recurse: yes
+    owner: "{{ nginx_user }}"
+    group: "{{ nginx_user }}"
+  with_items:
+    - /var/www
+    - /run/php
+
+- name: show ssh public key
+  command: /bin/cat /home/{{ nginx_user }}/.ssh/id_rsa.pub
+  register: cat
+
+- debug: var=cat.stdout_lines
+
+- name: wait for user to copy ssh public key
+  pause: prompt="Please add the ssh public key above to your github account"
+
+- name: install nginx, php-fpm and php-cli on the latest version
+  apt: 
+    package: ['nginx', 'php-fpm', 'php-cli', 'python-apt', 'python3-apt', 'git', 'netcat']
+    update_cache: yes
+    state: latest
+
+- name: remove apache2 package
+  apt:
+    package: apache2
+    state: absent
+
+- name: get port, default 22
+  delegate_to: localhost
+  set_fact:
+    ansible_ssh_port: "{{ hostvars[inventory_hostname]['ansible_ssh_port'] | default('22') }}"
+
+- name: ensure ssh host key known
+  delegate_to: localhost
+  lineinfile:
+    dest: ~/.ssh/known_hosts
+    create: yes
+    state: present
+    line: "{{ lookup('pipe', 'ssh-keyscan -trsa -p' + ansible_ssh_port + ' ' + inventory_hostname) }}"
+
+#- name: update apt repo and cache on all debian/ubuntu boxes
+#  apt:
+#    update_cache: yes
+    #force_apt_get: yes
+    #cache_valid_time: 3600
+
+- name: "upgrade all packages on servers"
+  apt: 
+    upgrade: yes 
+    #update_cache: yes
+    #force_apt_get: yes
+
+- name: check if a reboot is needed on all servers
+  stat: 
+    path: /var/run/reboot-required
+    get_md5: no
+  register: reboot_required
+
+- name: reboot the box if kernel updated
+  reboot:
+    msg: "Reboot initiated by Ansible for kernel updates"
+    connect_timeout: 5
+    reboot_timeout: 300
+    pre_reboot_delay: 0
+    post_reboot_delay: 30
+    test_command: uptime
+  when: reboot_required.stat.exists

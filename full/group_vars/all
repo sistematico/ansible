@@ -1,0 +1,21 @@
+---
+certbot_admin_email: sistematico@gmail.com
+default_domain: radiochat.com.br # not include www! hostname appended
+nginx_user: 'nginx'
+domains:
+  - { domain: 'guerrilha.net', git: 'git@github.com:sistematico/guerrilha.git' }
+  - { domain: 'lucasbrum.net', git: 'git@github.com:sistematico/lucasbrum.git' }
+  - { domain: 'bruminformatica.com.br', git: false }
+  - { domain: 'labs.lucasbrum.net', git: false }
+  - { domain: 'quandonasci.com.br', git: false }
+  - { domain: 'flexcocho.com.br', git: false }
+  - { domain: 'linuxnews.com.br', git: false }
+  
+git_main: 'labs.lucasbrum.net'
+git_extras:
+  - { name: 'mvc', git: 'git@github.com:sistematico/php-mvc.git' }
+
+music_files:
+  - { file: '/opt/audio/Louisiana-Duke-Ellington-and-His-Orchestra-restored.mp3', url: 'https://archive.org/download/78_louisiana_duke-ellington-and-his-orchestra-razaf-schafer-johnson_gbia0064586b/Louisiana%20-%20Duke%20Ellington%20and%20His%20Orchestra-restored.mp3' }
+  - { file: '/opt/radio/jingles/Louisiana-Duke-Ellington-and-His-Orchestra-restored.mp3', url: 'https://archive.org/download/78_louisiana_duke-ellington-and-his-orchestra-razaf-schafer-johnson_gbia0064586b/Louisiana%20-%20Duke%20Ellington%20and%20His%20Orchestra-restored.mp3' }
+  - { file: '/opt/radio/default.mp3', url: 'https://archive.org/download/78_louisiana_duke-ellington-and-his-orchestra-razaf-schafer-johnson_gbia0064586b/Louisiana%20-%20Duke%20Ellington%20and%20His%20Orchestra-restored.mp3' }

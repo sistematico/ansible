@@ -1,0 +1,10 @@
+---
+- name: reload icecast
+  service: 
+    name: icecast2
+    state: restarted
+
+- name: reload liquidsoap
+  service: 
+    name: liquidsoap
+    state: restarted

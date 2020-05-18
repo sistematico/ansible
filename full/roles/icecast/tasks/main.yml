@@ -1,0 +1,51 @@
+---
+- name: install icecast and liquidsoap
+  apt: 
+    package: ['icecast2', 'liquidsoap']
+    update_cache: yes
+    state: latest
+
+- name: create icecast2 user
+  user:
+    name: icecast2
+    shell: /bin/bash
+
+- name: setup radio.liq
+  template: 
+    src: templates/radio.liq.j2
+    dest: /etc/liquidsoap/radio.liq
+    mode: '0755'
+
+- name: setup icecast.xml
+  template: 
+    src: templates/icecast.xml.j2
+    dest: /etc/icecast2/icecast.xml
+
+- name: setup update-liquidsoap.sh
+  template: 
+    src: templates/update-liquidsoap.sh.j2
+    dest: /usr/local/bin/update-liquidsoap.sh
+    mode: '0755'
+
+- name: creates /var/www/sites/projetos directory
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "liquidsoap"
+    group: "liquidsoap"
+    mode: '0755'
+  with_items: ['/opt/radio','/opt/audio', '/opt/radio/jingles']
+
+- name: download example files
+  get_url:
+    url: "{{ item.url }}"
+    dest: "{{ item.file }}"
+    mode: '0644'
+  with_items: "{{ music_files }}"
+
+- name: create playlists
+  shell: /usr/local/bin/update-liquidsoap.sh 2> /var/log/update-liquidsoap.log
+  notify:
+    - reload icecast
+    - reload liquidsoap
+

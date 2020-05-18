@@ -1,0 +1,32 @@
+#!/usr/bin/liquidsoap
+
+set("harbor.bind_addr","0.0.0.0")
+set("log.file.path","/tmp/liquidsoap.log")
+
+default		= single("/opt/radio/default.mp3")
+lista		= playlist("/opt/radio/lista.m3u",reload_mode="watch")
+live		= strip_blank(input.harbor("aovivo",port=8080,user="radiochat",password="hackme"))
+jingles 	= playlist("/opt/radio/jingles.m3u")
+
+#def pedidos() =
+#	result = list.hd(get_process_lines("/usr/bin/php /var/www/radiochat.com.br/bin/engine.php"))
+#	request.create(result)
+#end
+#pedido = request.dynamic(pedidos)
+
+#streams = random(weights=[1,10],[jingles,pedidos])
+#geral = fallback(track_sensitive=false,[live,streams,lista,default])
+
+streams = random(weights=[1,10],[jingles,lista])
+geral = fallback(track_sensitive=false,[live,streams,default])
+
+output.icecast(%mp3,host="localhost",
+				port=8000,
+				password="hackme",
+				mount="stream",
+				icy_metadata="true",
+				genre="Pop",
+				description="A sua radio!",
+				name="RadioChat",
+				url="https://radiochat.com.br",
+				geral)

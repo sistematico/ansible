@@ -1,0 +1,10 @@
+---
+#- import_playbook: 01-ubuntu.yml
+- hosts: all
+  remote_user: root
+  roles:
+    - ubuntu
+    - letsencrypt
+    - nginx
+    - icecast
+    - git

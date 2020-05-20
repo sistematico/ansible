@@ -3,8 +3,10 @@
   service: 
     name: icecast2
     state: restarted
+    enabled: yes
 
 - name: reload liquidsoap
   service: 
     name: liquidsoap
     state: restarted
+    enabled: yes

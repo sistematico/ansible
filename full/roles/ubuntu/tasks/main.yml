@@ -47,8 +47,8 @@
 
 - name: install nginx, php-fpm and php-cli on the latest version
   apt: 
-    package: ['nginx', 'php-fpm', 'php-cli', 'python-apt', 'python3-apt', 'git', 'netcat']
-    update_cache: yes
+    package: ['nginx', 'php-fpm', 'php-cli', 'python-apt', 'python3-apt', 'git', 'netcat', 'nano']
+    #update_cache: yes
     state: latest
 
 - name: remove apache2 package
@@ -68,12 +68,6 @@
     create: yes
     state: present
     line: "{{ lookup('pipe', 'ssh-keyscan -trsa -p' + ansible_ssh_port + ' ' + inventory_hostname) }}"
-
-#- name: update apt repo and cache on all debian/ubuntu boxes
-#  apt:
-#    update_cache: yes
-    #force_apt_get: yes
-    #cache_valid_time: 3600
 
 - name: "upgrade all packages on servers"
   apt: 

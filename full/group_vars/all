@@ -6,7 +6,6 @@ domains:
   - { domain: 'guerrilha.net', git: 'git@github.com:sistematico/guerrilha.git' }
   - { domain: 'lucasbrum.net', git: 'git@github.com:sistematico/lucasbrum.git' }
   - { domain: 'bruminformatica.com.br', git: false }
-  - { domain: 'labs.lucasbrum.net', git: false }
   - { domain: 'quandonasci.com.br', git: false }
   - { domain: 'flexcocho.com.br', git: false }
   - { domain: 'linuxnews.com.br', git: false }

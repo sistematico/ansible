@@ -29,7 +29,21 @@
   shell: "certbot certonly --standalone --noninteractive --agree-tos --email {{ certbot_admin_email }} -d {{ default_domain }},{{ansible_hostname}}.{{ default_domain }}"
   when: letsencrypt_cert_default.stat.exists == false
 
+- name: create crontab for certbot renew
+  template: 
+    src: templates/crontab.j2
+    dest: /etc/crontab
+
+- name: create crontab for certbot renew
+  template: 
+    src: templates/update-cert.sh.j2
+    dest: /usr/local/bin/update-cert.sh
+    mode: '0755'
+
+- name: create certs
+  shell: /usr/local/bin/update-cert.sh 2> /var/log/update-cert.log
+
 - name: start nginx after cert has been generated
   service:
     name: nginx
-    state: started
+    state: restarted

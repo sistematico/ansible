@@ -1,14 +1,25 @@
 ---
+- name: setup icecast2 with ssl repo
+  template: 
+    src: templates/icecast.list.j2
+    dest: /etc/apt/sources.list.d/icecast.list
+
+- name: Add an Apt signing key, uses whichever key is at the URL
+  apt_key:
+    url: https://build.opensuse.org/projects/multimedia:libs/public_key.pub
+    state: present
+
 - name: install icecast and liquidsoap
   apt: 
-    package: ['icecast2', 'liquidsoap']
+    package: ['icecast2', 'liquidsoap', 'lame']
     update_cache: yes
     state: latest
 
-- name: create icecast2 user
+- name: create icecast2 and liquidsoap users
   user:
-    name: icecast2
+    name: "{{ item }}"
     shell: /bin/bash
+  with_items: ['icecast2','liquidsoap']
 
 - name: setup radio.liq
   template: 

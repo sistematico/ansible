@@ -1,0 +1,8 @@
+#!/bin/bash
+
+cat /etc/letsencrypt/live/{{ default_domain }}/fullchain.pem > /usr/share/icecast2/icecast.pem
+cat /etc/letsencrypt/live/{{ default_domain }}/privkey.pem >> /usr/share/icecast2/icecast.pem
+
+service nginx reload
+service icecast2 reload
+service liquidsoap reload

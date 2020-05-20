@@ -26,12 +26,10 @@
     -->
 
     <!-- Uncomment this if you want directory listings -->
-    <!--
     <directory>
         <yp-url-timeout>15</yp-url-timeout>
         <yp-url>http://dir.xiph.org/cgi-bin/yp-cgi</yp-url>
     </directory>
-    -->
 
     <hostname>localhost</hostname>
 
@@ -40,12 +38,11 @@
         <!-- <bind-address>127.0.0.1</bind-address> -->
         <!-- <shoutcast-mount>/stream</shoutcast-mount> -->
     </listen-socket>
-    <!--
+    
     <listen-socket>
         <port>8443</port>
         <ssl>1</ssl>
     </listen-socket>
-    -->
 
     <http-headers>
         <header name="Access-Control-Allow-Origin" value="*" />
@@ -154,8 +151,8 @@
         <!-- <alias source="/foo" destination="/bar"/> -->
         <alias source="/" destination="/status.xsl"/>
         <!-- The certificate file needs to contain both public and private part.
-             Both should be PEM encoded.
-        <ssl-certificate>/usr/share/icecast2/icecast.pem</ssl-certificate> -->
+             Both should be PEM encoded. -->
+        <ssl-certificate>/usr/share/icecast2/icecast.pem</ssl-certificate>
     </paths>
 
     <logging>

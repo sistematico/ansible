@@ -4,7 +4,7 @@
   remote_user: root
   roles:
     - ubuntu
-    - letsencrypt
+    #- letsencrypt
     - nginx
     - icecast
     - git
